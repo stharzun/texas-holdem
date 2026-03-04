@@ -19,7 +19,7 @@ body {
 
 /* Poker table felt texture */
 .poker-table-felt {
-  position: relative;
+  /* position is set by Tailwind utility classes on the element */
 }
 
 .poker-table-felt::before {

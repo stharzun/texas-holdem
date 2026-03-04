@@ -261,7 +261,7 @@ export default function PokerTable() {
   const { players, communityCards, phase, activePlayerIndex, pots, winners } = gameState;
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-2 overflow-hidden">
+    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-2">
       {/* Header */}
       <div className="flex items-center justify-between w-full max-w-5xl mb-2 px-2">
         <div className="text-gray-400 text-sm">
@@ -278,26 +278,21 @@ export default function PokerTable() {
       </div>
 
       {/* Table area */}
-      <div className="relative w-full max-w-5xl" style={{ paddingBottom: '56%' }}>
+      <div className="relative w-full max-w-5xl mx-auto" style={{ paddingBottom: '56%' }}>
         {/* Poker table felt */}
         <div
-          className="absolute inset-0 rounded-[50%] poker-table-felt border-8 border-amber-900 shadow-2xl"
+          className="absolute inset-0 rounded-[50%] poker-table-felt border-8 border-amber-900"
           style={{
             background: 'radial-gradient(ellipse at center, #1a5c2a 0%, #0f3d1a 60%, #0a2d12 100%)',
             boxShadow: '0 0 0 12px #5c3a1e, 0 20px 60px rgba(0,0,0,0.8)',
           }}
         >
           {/* Table inner rail */}
-          <div
-            className="absolute inset-4 rounded-[50%] border-2 border-green-800/30"
-          />
+          <div className="absolute inset-4 rounded-[50%] border-2 border-green-800/30" />
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            {/* Pot display */}
             <PotDisplay pots={pots} totalPot={totalPot} winners={winners} />
-
-            {/* Community cards */}
             <CommunityCards cards={communityCards} phase={phase} />
           </div>
 
@@ -315,6 +310,7 @@ export default function PokerTable() {
                   top: position.top,
                   left: position.left,
                   transform: position.transform ?? 'translate(-50%, -50%)',
+                  zIndex: 10,
                 }}
                 winProbability={winProbabilities[player.id]}
               />
