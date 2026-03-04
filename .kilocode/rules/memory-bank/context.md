@@ -100,3 +100,4 @@ export async function GET() {
 | Initial | Template created with base setup |
 | 2026-03-04 | Built complete Texas Hold'em poker game (2,213 lines) |
 | 2026-03-04 | Added Monte Carlo win probability (2000 simulations per phase change); shown as color-coded % bar on each player seat |
+| 2026-03-04 | Fixed game table UI: removed `position:relative` CSS override on `.poker-table-felt` that was breaking the oval table layout; removed `overflow-hidden` from outer container that was clipping player seats |
