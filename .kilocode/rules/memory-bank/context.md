@@ -17,6 +17,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Full Texas Hold'em poker game (2,213 lines)
 - [x] Monte Carlo win probability calculator (src/utils/monteCarlo.ts)
 - [x] Win % bar displayed on each active player's seat (color-coded green/yellow/red)
+- [x] Polished StartScreen component: landing page → setup → game flow (src/components/StartScreen.tsx)
 
 ## Current Structure
 

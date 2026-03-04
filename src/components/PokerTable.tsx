@@ -16,6 +16,7 @@ import PlayerSeat from './PlayerSeat';
 import CommunityCards from './CommunityCards';
 import PotDisplay from './PotDisplay';
 import ActionPanel from './ActionPanel';
+import StartScreen from './StartScreen';
 import { calculateWinProbabilities, WinProbabilities } from '../utils/monteCarlo';
 
 // ============================================================
@@ -44,138 +45,6 @@ const SEAT_POSITIONS: SeatPosition[] = [
   // Bottom left
   { top: '75%', left: '28%', transform: 'translate(-50%, -50%)' },
 ];
-
-// ============================================================
-// Setup Screen
-// ============================================================
-interface SetupScreenProps {
-  onStart: (config: SetupConfig) => void;
-}
-
-function SetupScreen({ onStart }: SetupScreenProps) {
-  const [numPlayers, setNumPlayers] = useState(4);
-  const [playerNames, setPlayerNames] = useState<string[]>(
-    Array.from({ length: 10 }, (_, i) => `Player ${i + 1}`)
-  );
-  const [startingStack, setStartingStack] = useState(1000);
-  const [smallBlind, setSmallBlind] = useState(5);
-  const [bigBlind, setBigBlind] = useState(10);
-
-  const handleNameChange = (index: number, name: string) => {
-    const updated = [...playerNames];
-    updated[index] = name;
-    setPlayerNames(updated);
-  };
-
-  const handleStart = () => {
-    onStart({
-      playerNames: playerNames.slice(0, numPlayers),
-      startingStack,
-      smallBlind,
-      bigBlind,
-    });
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-2xl border border-gray-700 p-8 w-full max-w-2xl shadow-2xl">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">🃏 Texas Hold&apos;em</h1>
-          <p className="text-gray-400">Local multiplayer poker — up to 10 players</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          {/* Number of players */}
-          <div>
-            <label className="block text-gray-300 text-sm font-semibold mb-2">
-              Number of Players
-            </label>
-            <select
-              value={numPlayers}
-              onChange={e => setNumPlayers(Number(e.target.value))}
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-600 focus:outline-none focus:border-green-500"
-            >
-              {[2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                <option key={n} value={n}>{n} Players</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Starting stack */}
-          <div>
-            <label className="block text-gray-300 text-sm font-semibold mb-2">
-              Starting Stack ($)
-            </label>
-            <input
-              type="number"
-              value={startingStack}
-              onChange={e => setStartingStack(Number(e.target.value))}
-              min={100}
-              step={100}
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-600 focus:outline-none focus:border-green-500"
-            />
-          </div>
-
-          {/* Small blind */}
-          <div>
-            <label className="block text-gray-300 text-sm font-semibold mb-2">
-              Small Blind ($)
-            </label>
-            <input
-              type="number"
-              value={smallBlind}
-              onChange={e => setSmallBlind(Number(e.target.value))}
-              min={1}
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-600 focus:outline-none focus:border-green-500"
-            />
-          </div>
-
-          {/* Big blind */}
-          <div>
-            <label className="block text-gray-300 text-sm font-semibold mb-2">
-              Big Blind ($)
-            </label>
-            <input
-              type="number"
-              value={bigBlind}
-              onChange={e => setBigBlind(Number(e.target.value))}
-              min={2}
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-600 focus:outline-none focus:border-green-500"
-            />
-          </div>
-        </div>
-
-        {/* Player names */}
-        <div className="mb-6">
-          <label className="block text-gray-300 text-sm font-semibold mb-3">
-            Player Names
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {Array.from({ length: numPlayers }, (_, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="text-gray-500 text-xs w-6 text-right">{i + 1}.</span>
-                <input
-                  type="text"
-                  value={playerNames[i]}
-                  onChange={e => handleNameChange(i, e.target.value)}
-                  className="flex-1 bg-gray-800 text-white rounded px-2 py-1.5 text-sm border border-gray-600 focus:outline-none focus:border-green-500"
-                  placeholder={`Player ${i + 1}`}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={handleStart}
-          className="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-bold text-xl rounded-xl transition-colors shadow-lg"
-        >
-          🃏 Start Game
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ============================================================
 // Main Poker Table Component
@@ -254,7 +123,7 @@ export default function PokerTable() {
   }, []);
 
   if (showSetup || !gameState) {
-    return <SetupScreen onStart={handleStart} />;
+    return <StartScreen onStart={handleStart} />;
   }
 
   const totalPot = getTotalPot(gameState);
