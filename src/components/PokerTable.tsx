@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GameState, SetupConfig, SeatPosition } from '../types';
 import {
   initializeGame,
@@ -16,6 +16,7 @@ import PlayerSeat from './PlayerSeat';
 import CommunityCards from './CommunityCards';
 import PotDisplay from './PotDisplay';
 import ActionPanel from './ActionPanel';
+import { calculateWinProbabilities, WinProbabilities } from '../utils/monteCarlo';
 
 // ============================================================
 // Seat positions for up to 10 players around an oval table
@@ -182,6 +183,32 @@ function SetupScreen({ onStart }: SetupScreenProps) {
 export default function PokerTable() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [showSetup, setShowSetup] = useState(true);
+  const [winProbabilities, setWinProbabilities] = useState<WinProbabilities>({});
+  const simTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Run Monte Carlo simulation whenever the game phase or community cards change
+  useEffect(() => {
+    if (!gameState || gameState.phase === 'waiting' || gameState.phase === 'showdown') {
+      setWinProbabilities({});
+      return;
+    }
+
+    // Debounce: wait a tick so UI renders first, then compute
+    if (simTimerRef.current) clearTimeout(simTimerRef.current);
+    simTimerRef.current = setTimeout(() => {
+      const probs = calculateWinProbabilities(
+        gameState.players,
+        gameState.communityCards,
+        2000
+      );
+      setWinProbabilities(probs);
+    }, 50);
+
+    return () => {
+      if (simTimerRef.current) clearTimeout(simTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState?.phase, gameState?.communityCards.length, gameState?.players.map(p => p.status).join(',')]);
 
   const handleStart = useCallback((config: SetupConfig) => {
     const initialState = initializeGame(config);
@@ -289,6 +316,7 @@ export default function PokerTable() {
                   left: position.left,
                   transform: position.transform ?? 'translate(-50%, -50%)',
                 }}
+                winProbability={winProbabilities[player.id]}
               />
             );
           })}

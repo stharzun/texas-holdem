@@ -10,6 +10,7 @@ interface PlayerSeatProps {
   phase: GamePhase;
   showCards: boolean; // show hole cards (showdown)
   seatStyle: React.CSSProperties;
+  winProbability?: number; // 0-100, from Monte Carlo simulation
 }
 
 function CardDisplay({ card, hidden }: { card: Card; hidden?: boolean }) {
@@ -33,7 +34,7 @@ function CardDisplay({ card, hidden }: { card: Card; hidden?: boolean }) {
   );
 }
 
-export default function PlayerSeat({ player, isActive, phase, showCards, seatStyle }: PlayerSeatProps) {
+export default function PlayerSeat({ player, isActive, phase, showCards, seatStyle, winProbability }: PlayerSeatProps) {
   const isFolded = player.status === 'folded';
   const isAllIn = player.status === 'all-in';
   const isSittingOut = player.status === 'sitting-out';
@@ -108,6 +109,38 @@ export default function PlayerSeat({ player, isActive, phase, showCards, seatSty
         )}
         {isAllIn && (
           <div className="text-xs text-red-300 font-bold animate-pulse">ALL-IN</div>
+        )}
+
+        {/* Win probability bar (shown during active play, not showdown) */}
+        {winProbability !== undefined && phase !== 'showdown' && !isFolded && (
+          <div className="mt-1 w-full">
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs text-gray-400 leading-none">Win</span>
+              <span
+                className={`text-xs font-bold leading-none ${
+                  winProbability >= 60
+                    ? 'text-green-400'
+                    : winProbability >= 35
+                    ? 'text-yellow-400'
+                    : 'text-red-400'
+                }`}
+              >
+                {winProbability.toFixed(1)}%
+              </span>
+            </div>
+            <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  winProbability >= 60
+                    ? 'bg-green-500'
+                    : winProbability >= 35
+                    ? 'bg-yellow-500'
+                    : 'bg-red-500'
+                }`}
+                style={{ width: `${Math.min(100, winProbability)}%` }}
+              />
+            </div>
+          </div>
         )}
 
         {/* Hand result at showdown */}
