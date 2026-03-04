@@ -2,37 +2,22 @@
 
 import React from 'react';
 import { Card, GamePhase } from '../types';
-import { suitSymbol, suitColor } from '../utils/shuffle';
+import PlayingCard from './PlayingCard';
 
 interface CommunityCardsProps {
   cards: Card[];
   phase: GamePhase;
 }
 
-function CommunityCard({ card, index }: { card: Card; index: number }) {
-  const colorClass = suitColor(card.suit);
-  const symbol = suitSymbol(card.suit);
-
+function EmptyCardSlot() {
   return (
     <div
-      className="w-12 h-18 rounded-lg bg-white border-2 border-gray-200 flex flex-col items-center justify-between p-1 shadow-lg"
+      className="rounded-lg border-2 border-dashed border-green-700/40 bg-green-900/20"
       style={{
-        height: '72px',
-        animationDelay: `${index * 100}ms`,
+        width: '56px',
+        height: '78px',
+        boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.2)',
       }}
-    >
-      <div className={`text-sm font-bold leading-none ${colorClass}`}>{card.rank}</div>
-      <div className={`text-2xl leading-none ${colorClass}`}>{symbol}</div>
-      <div className={`text-sm font-bold leading-none rotate-180 ${colorClass}`}>{card.rank}</div>
-    </div>
-  );
-}
-
-function EmptyCard() {
-  return (
-    <div
-      className="w-12 rounded-lg border-2 border-dashed border-green-700/50 bg-green-900/20"
-      style={{ height: '72px' }}
     />
   );
 }
@@ -41,29 +26,40 @@ export default function CommunityCards({ cards, phase }: CommunityCardsProps) {
   const phaseLabel: Record<GamePhase, string> = {
     waiting: '',
     preflop: 'Pre-Flop',
-    flop: 'Flop',
-    turn: 'Turn',
-    river: 'River',
+    flop: 'The Flop',
+    turn: 'The Turn',
+    river: 'The River',
     showdown: 'Showdown',
   };
 
-  // Show placeholders for cards not yet dealt
   const totalSlots = 5;
   const slots = Array.from({ length: totalSlots }, (_, i) => cards[i] ?? null);
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-3">
       {phase !== 'waiting' && (
-        <div className="text-green-300 text-xs font-semibold uppercase tracking-widest">
+        <div 
+          className="px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-widest"
+          style={{
+            background: 'rgba(0,0,0,0.4)',
+            color: '#86efac',
+            border: '1px solid rgba(74, 222, 128, 0.3)',
+            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+          }}
+        >
           {phaseLabel[phase]}
         </div>
       )}
       <div className="flex gap-2 items-center">
         {slots.map((card, i) => (
           card ? (
-            <CommunityCard key={i} card={card} index={i} />
+            <PlayingCard 
+              key={i} 
+              card={card}
+              size="md"
+            />
           ) : (
-            <EmptyCard key={i} />
+            <EmptyCardSlot key={i} />
           )
         ))}
       </div>

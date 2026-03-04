@@ -20,34 +20,34 @@ import StartScreen from './StartScreen';
 import { calculateWinProbabilities, WinProbabilities } from '../utils/monteCarlo';
 
 // ============================================================
-// Seat positions for up to 10 players around an oval table
+// Seat positions optimized for the new table design
 // Positions are percentage-based (top/left) relative to table container
 // ============================================================
 const SEAT_POSITIONS: SeatPosition[] = [
-  // Bottom center (seat 0 - often dealer start)
-  { top: '82%', left: '50%', transform: 'translate(-50%, -50%)' },
+  // Bottom center (user position)
+  { top: '88%', left: '50%', transform: 'translate(-50%, -50%)' },
   // Bottom right
-  { top: '75%', left: '72%', transform: 'translate(-50%, -50%)' },
-  // Right
-  { top: '55%', left: '88%', transform: 'translate(-50%, -50%)' },
+  { top: '78%', left: '75%', transform: 'translate(-50%, -50%)' },
+  // Mid right
+  { top: '55%', left: '92%', transform: 'translate(-50%, -50%)' },
   // Top right
-  { top: '25%', left: '78%', transform: 'translate(-50%, -50%)' },
+  { top: '22%', left: '82%', transform: 'translate(-50%, -50%)' },
   // Top center-right
-  { top: '12%', left: '62%', transform: 'translate(-50%, -50%)' },
+  { top: '8%', left: '65%', transform: 'translate(-50%, -50%)' },
   // Top center
-  { top: '10%', left: '50%', transform: 'translate(-50%, -50%)' },
+  { top: '6%', left: '50%', transform: 'translate(-50%, -50%)' },
   // Top center-left
-  { top: '12%', left: '38%', transform: 'translate(-50%, -50%)' },
+  { top: '8%', left: '35%', transform: 'translate(-50%, -50%)' },
   // Top left
-  { top: '25%', left: '22%', transform: 'translate(-50%, -50%)' },
-  // Left
-  { top: '55%', left: '12%', transform: 'translate(-50%, -50%)' },
+  { top: '22%', left: '18%', transform: 'translate(-50%, -50%)' },
+  // Mid left
+  { top: '55%', left: '8%', transform: 'translate(-50%, -50%)' },
   // Bottom left
-  { top: '75%', left: '28%', transform: 'translate(-50%, -50%)' },
+  { top: '78%', left: '25%', transform: 'translate(-50%, -50%)' },
 ];
 
 // ============================================================
-// Main Poker Table Component
+// Main Poker Table Component - Redesigned
 // ============================================================
 export default function PokerTable() {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -62,7 +62,6 @@ export default function PokerTable() {
       return;
     }
 
-    // Debounce: wait a tick so UI renders first, then compute
     if (simTimerRef.current) clearTimeout(simTimerRef.current);
     simTimerRef.current = setTimeout(() => {
       const probs = calculateWinProbabilities(
@@ -130,102 +129,166 @@ export default function PokerTable() {
   const { players, communityCards, phase, activePlayerIndex, pots, winners } = gameState;
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-2">
-      {/* Header */}
-      <div className="flex items-center justify-between w-full max-w-5xl mb-2 px-2">
-        <div className="text-gray-400 text-sm">
-          Hand #{gameState.handNumber} •{' '}
-          <span className="text-white capitalize">{phase}</span>
-        </div>
-        <h1 className="text-white font-bold text-lg">🃏 Texas Hold&apos;em</h1>
-        <button
-          onClick={handleNewGame}
-          className="text-gray-400 hover:text-white text-sm transition-colors"
-        >
-          New Game
-        </button>
-      </div>
-
-      {/* Table area */}
-      <div className="relative w-full max-w-5xl mx-auto" style={{ paddingBottom: '56%' }}>
-        {/* Poker table felt */}
-        <div
-          className="absolute inset-0 rounded-[50%] poker-table-felt border-8 border-amber-900"
-          style={{
-            background: 'radial-gradient(ellipse at center, #1a5c2a 0%, #0f3d1a 60%, #0a2d12 100%)',
-            boxShadow: '0 0 0 12px #5c3a1e, 0 20px 60px rgba(0,0,0,0.8)',
-          }}
-        >
-          {/* Table inner rail */}
-          <div className="absolute inset-4 rounded-[50%] border-2 border-green-800/30" />
-
-          {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <PotDisplay pots={pots} totalPot={totalPot} winners={winners} />
-            <CommunityCards cards={communityCards} phase={phase} />
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 flex flex-col">
+      {/* Top Navigation Bar */}
+      <header className="flex items-center justify-between px-6 py-3 bg-gray-950/80 backdrop-blur-sm border-b border-gray-800/50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center shadow-lg">
+            <span className="text-lg">🃏</span>
           </div>
-
-          {/* Player seats */}
-          {players.map((player, index) => {
-            const position = SEAT_POSITIONS[player.seatIndex] ?? SEAT_POSITIONS[0];
-            return (
-              <PlayerSeat
-                key={player.id}
-                player={player}
-                isActive={index === activePlayerIndex}
-                phase={phase}
-                showCards={phase === 'showdown'}
-                seatStyle={{
-                  top: position.top,
-                  left: position.left,
-                  transform: position.transform ?? 'translate(-50%, -50%)',
-                  zIndex: 10,
-                }}
-                winProbability={winProbabilities[player.id]}
-              />
-            );
-          })}
+          <div>
+            <h1 className="text-white font-bold text-sm">Texas Hold'em</h1>
+            <div className="text-gray-500 text-xs">
+              Hand #{gameState.handNumber}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Action panel */}
-      <div className="mt-3 w-full max-w-lg">
-        <ActionPanel
-          gameState={gameState}
-          onFold={handleFold}
-          onCheck={handleCheck}
-          onCall={handleCall}
-          onRaise={handleRaise}
-          onAllIn={handleAllIn}
-          onNextHand={handleNextHand}
-        />
-      </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-900 rounded-full border border-gray-800">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-gray-300 text-xs font-medium capitalize">{phase}</span>
+          </div>
+          <button
+            onClick={handleNewGame}
+            className="px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-gray-900 hover:bg-gray-800 rounded-full border border-gray-800 transition-all"
+          >
+            New Game
+          </button>
+        </div>
+      </header>
 
-      {/* Player stacks summary (bottom bar) */}
-      <div className="mt-2 w-full max-w-5xl">
-        <div className="flex flex-wrap gap-1 justify-center">
+      {/* Main Game Area */}
+      <main className="flex-1 flex flex-col items-center justify-center p-4">
+        {/* Poker Table Container */}
+        <div className="relative w-full max-w-6xl mx-auto" style={{ paddingBottom: '52%' }}>
+          {/* Table Background with Wood Rail */}
+          <div className="absolute inset-0 rounded-[45%] shadow-2xl overflow-hidden">
+            {/* Wood Rail */}
+            <div 
+              className="absolute inset-0 rounded-[45%]"
+              style={{
+                background: 'linear-gradient(145deg, #8B5A2B 0%, #654321 30%, #4A2C17 50%, #654321 70%, #8B5A2B 100%)',
+                boxShadow: 'inset 0 0 40px rgba(0,0,0,0.6), 0 10px 40px rgba(0,0,0,0.8)',
+              }}
+            />
+            
+            {/* Inner Felt */}
+            <div 
+              className="absolute inset-3 rounded-[45%] overflow-hidden"
+              style={{
+                background: 'radial-gradient(ellipse at center, #0d4a1c 0%, #093d16 40%, #063011 100%)',
+              }}
+            >
+              {/* Felt Texture Pattern */}
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage: `
+                    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px),
+                    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)
+                  `,
+                }}
+              />
+              
+              {/* Inner Border Line */}
+              <div 
+                className="absolute inset-4 rounded-[45%] border-2 border-green-700/40"
+                style={{
+                  boxShadow: 'inset 0 0 20px rgba(0,0,0,0.3)',
+                }}
+              />
+
+              {/* Center Content Area */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+                <PotDisplay pots={pots} totalPot={totalPot} winners={winners} />
+                <CommunityCards cards={communityCards} phase={phase} />
+              </div>
+
+              {/* Player Seats */}
+              {players.map((player, index) => {
+                const position = SEAT_POSITIONS[player.seatIndex] ?? SEAT_POSITIONS[0];
+                return (
+                  <PlayerSeat
+                    key={player.id}
+                    player={player}
+                    isActive={index === activePlayerIndex}
+                    phase={phase}
+                    showCards={phase === 'showdown'}
+                    seatStyle={{
+                      top: position.top,
+                      left: position.left,
+                      transform: position.transform ?? 'translate(-50%, -50%)',
+                      zIndex: 20,
+                    }}
+                    winProbability={winProbabilities[player.id]}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Panel */}
+        <div className="mt-4 w-full max-w-xl">
+          <ActionPanel
+            gameState={gameState}
+            onFold={handleFold}
+            onCheck={handleCheck}
+            onCall={handleCall}
+            onRaise={handleRaise}
+            onAllIn={handleAllIn}
+            onNextHand={handleNextHand}
+          />
+        </div>
+      </main>
+
+      {/* Player Info Bar */}
+      <footer className="px-4 py-2 bg-gray-950/90 backdrop-blur border-t border-gray-800/50">
+        <div className="flex flex-wrap gap-2 justify-center max-w-6xl mx-auto">
           {players.map((player, i) => (
             <div
               key={player.id}
               className={`
-                flex items-center gap-1.5 px-2 py-1 rounded text-xs
-                ${i === activePlayerIndex ? 'bg-yellow-900/50 border border-yellow-600' : 'bg-gray-800/50 border border-gray-700'}
+                flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs
+                ${i === activePlayerIndex 
+                  ? 'bg-yellow-900/30 border border-yellow-600/50 shadow-sm shadow-yellow-900/20' 
+                  : 'bg-gray-900/50 border border-gray-800'}
                 ${player.status === 'folded' ? 'opacity-40' : ''}
+                transition-all duration-200
               `}
             >
-              {player.isDealer && <span className="text-white bg-gray-600 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">D</span>}
-              <span className={i === activePlayerIndex ? 'text-yellow-300' : 'text-gray-300'}>
+              {player.isDealer && (
+                <span className="w-4 h-4 bg-white text-black rounded-full flex items-center justify-center text-[10px] font-bold">
+                  D
+                </span>
+              )}
+              {player.isSmallBlind && !player.isDealer && (
+                <span className="w-4 h-4 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
+                  SB
+                </span>
+              )}
+              {player.isBigBlind && (
+                <span className="w-4 h-4 bg-orange-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
+                  BB
+                </span>
+              )}
+              <span className={i === activePlayerIndex ? 'text-yellow-300 font-medium' : 'text-gray-300'}>
                 {player.name}
               </span>
-              <span className={player.stack === 0 ? 'text-red-400' : 'text-green-400'}>
+              <span className={player.stack === 0 ? 'text-red-400' : 'text-emerald-400 font-medium'}>
                 ${player.stack.toLocaleString()}
               </span>
-              {player.status === 'all-in' && <span className="text-red-300 font-bold">AI</span>}
-              {player.status === 'folded' && <span className="text-gray-500">F</span>}
+              {player.status === 'all-in' && (
+                <span className="text-red-400 font-bold text-[10px] uppercase tracking-wide">AI</span>
+              )}
+              {player.status === 'folded' && (
+                <span className="text-gray-500 text-[10px]">FOLD</span>
+              )}
             </div>
           ))}
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

@@ -1,141 +1,121 @@
 'use client';
 
 import React from 'react';
-import { Player, Card, GamePhase } from '../types';
-import { suitSymbol, suitColor } from '../utils/shuffle';
+import { Player, GamePhase } from '../types';
+import PlayingCard from './PlayingCard';
 
 interface PlayerSeatProps {
   player: Player;
   isActive: boolean;
   phase: GamePhase;
-  showCards: boolean; // show hole cards (showdown)
+  showCards: boolean;
   seatStyle: React.CSSProperties;
-  winProbability?: number; // 0-100, from Monte Carlo simulation
-}
-
-function CardDisplay({ card, hidden }: { card: Card; hidden?: boolean }) {
-  if (hidden || !card.faceUp) {
-    return (
-      <div className="w-8 h-12 rounded bg-blue-800 border border-blue-600 flex items-center justify-center shadow-md">
-        <span className="text-blue-400 text-xs">🂠</span>
-      </div>
-    );
-  }
-
-  const colorClass = suitColor(card.suit);
-  const symbol = suitSymbol(card.suit);
-
-  return (
-    <div className="w-8 h-12 rounded bg-white border border-gray-300 flex flex-col items-center justify-between p-0.5 shadow-md">
-      <span className={`text-xs font-bold leading-none ${colorClass}`}>{card.rank}</span>
-      <span className={`text-sm leading-none ${colorClass}`}>{symbol}</span>
-      <span className={`text-xs font-bold leading-none rotate-180 ${colorClass}`}>{card.rank}</span>
-    </div>
-  );
+  winProbability?: number;
 }
 
 export default function PlayerSeat({ player, isActive, phase, showCards, seatStyle, winProbability }: PlayerSeatProps) {
   const isFolded = player.status === 'folded';
   const isAllIn = player.status === 'all-in';
   const isSittingOut = player.status === 'sitting-out';
-
-  const borderColor = isActive
-    ? 'border-yellow-400 shadow-yellow-400/50 shadow-lg'
-    : isFolded
-    ? 'border-gray-600'
-    : isAllIn
-    ? 'border-red-500'
-    : 'border-green-700';
-
-  const bgColor = isActive
-    ? 'bg-gray-800'
-    : isFolded
-    ? 'bg-gray-900/70'
-    : 'bg-gray-800/90';
-
   const shouldShowCards = showCards || phase === 'showdown';
 
   return (
     <div
-      className={`absolute flex flex-col items-center gap-1`}
+      className="absolute flex flex-col items-center gap-2"
       style={seatStyle}
     >
-      {/* Player info card */}
+      {/* Player Card with Glassmorphism */}
       <div
         className={`
-          relative rounded-lg border-2 px-2 py-1.5 min-w-[90px] text-center
-          ${borderColor} ${bgColor}
-          transition-all duration-200
-          ${isSittingOut ? 'opacity-40' : ''}
+          relative rounded-xl px-3 py-2 min-w-[100px] text-center
+          backdrop-blur-md border
+          transition-all duration-300
+          ${isActive 
+            ? 'bg-gray-900/90 border-yellow-500/60 shadow-lg shadow-yellow-500/20 scale-105' 
+            : isFolded
+            ? 'bg-gray-900/60 border-gray-700/50 opacity-60'
+            : isAllIn
+            ? 'bg-red-950/70 border-red-500/50'
+            : 'bg-gray-900/80 border-gray-700/60 hover:border-gray-600/60'}
+          ${isSittingOut ? 'opacity-30' : ''}
         `}
+        style={{
+          boxShadow: isActive 
+            ? '0 0 20px rgba(234, 179, 8, 0.3), 0 4px 20px rgba(0,0,0,0.5)' 
+            : '0 4px 20px rgba(0,0,0,0.4)',
+        }}
       >
-        {/* Active indicator */}
+        {/* Active Indicator Ring */}
         {isActive && (
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse" />
+          <div className="absolute -inset-0.5 rounded-xl border-2 border-yellow-400/50 animate-pulse" />
         )}
 
-        {/* Dealer button */}
-        {player.isDealer && (
-          <div className="absolute -top-2 -left-2 w-5 h-5 bg-white text-black text-xs font-bold rounded-full flex items-center justify-center border border-gray-400 z-10">
-            D
-          </div>
-        )}
+        {/* Position Badges */}
+        <div className="absolute -top-3 -left-3 flex gap-1">
+          {player.isDealer && (
+            <div className="w-6 h-6 bg-white text-black text-xs font-bold rounded-full flex items-center justify-center border-2 border-gray-400 shadow-lg z-10">
+              D
+            </div>
+          )}
+          {player.isSmallBlind && !player.isDealer && (
+            <div className="w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-blue-400 shadow-lg z-10">
+              SB
+            </div>
+          )}
+          {player.isBigBlind && (
+            <div className="w-6 h-6 bg-orange-600 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-orange-400 shadow-lg z-10">
+              BB
+            </div>
+          )}
+        </div>
 
-        {/* Blind indicators */}
-        {player.isSmallBlind && !player.isDealer && (
-          <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center z-10">
-            SB
-          </div>
-        )}
-        {player.isBigBlind && (
-          <div className="absolute -top-2 -left-2 w-5 h-5 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center z-10">
-            BB
-          </div>
-        )}
-
-        {/* Player name */}
-        <div className={`text-xs font-semibold truncate max-w-[80px] ${isFolded ? 'text-gray-500' : 'text-white'}`}>
+        {/* Player Name */}
+        <div className={`text-sm font-semibold truncate max-w-[90px] ${isFolded ? 'text-gray-500' : 'text-white'}`}>
           {player.name}
         </div>
 
-        {/* Stack */}
-        <div className={`text-xs font-bold ${isFolded ? 'text-gray-600' : 'text-green-400'}`}>
+        {/* Stack Amount */}
+        <div className={`text-sm font-bold ${isFolded ? 'text-gray-600' : 'text-emerald-400'}`}>
           ${player.stack.toLocaleString()}
         </div>
 
-        {/* Status badges */}
+        {/* Status Badge */}
         {isFolded && (
-          <div className="text-xs text-red-400 font-semibold">FOLDED</div>
+          <div className="mt-1 px-2 py-0.5 bg-red-950/80 rounded text-xs text-red-400 font-semibold border border-red-800/50">
+            FOLDED
+          </div>
         )}
         {isAllIn && (
-          <div className="text-xs text-red-300 font-bold animate-pulse">ALL-IN</div>
+          <div className="mt-1 px-2 py-0.5 bg-red-900/80 rounded text-xs text-red-300 font-bold border border-red-700/50 animate-pulse">
+            ALL-IN
+          </div>
         )}
 
-        {/* Win probability bar (shown during active play, not showdown) */}
+        {/* Win Probability Bar */}
         {winProbability !== undefined && phase !== 'showdown' && !isFolded && (
-          <div className="mt-1 w-full">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-xs text-gray-400 leading-none">Win</span>
+          <div className="mt-2 w-full">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Win</span>
               <span
-                className={`text-xs font-bold leading-none ${
+                className={`text-xs font-bold ${
                   winProbability >= 60
-                    ? 'text-green-400'
+                    ? 'text-emerald-400'
                     : winProbability >= 35
-                    ? 'text-yellow-400'
+                    ? 'text-amber-400'
                     : 'text-red-400'
                 }`}
               >
-                {winProbability.toFixed(1)}%
+                {winProbability.toFixed(0)}%
               </span>
             </div>
-            <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${
+                className={`h-full rounded-full transition-all duration-700 ease-out ${
                   winProbability >= 60
-                    ? 'bg-green-500'
+                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400'
                     : winProbability >= 35
-                    ? 'bg-yellow-500'
-                    : 'bg-red-500'
+                    ? 'bg-gradient-to-r from-amber-600 to-amber-400'
+                    : 'bg-gradient-to-r from-red-600 to-red-400'
                 }`}
                 style={{ width: `${Math.min(100, winProbability)}%` }}
               />
@@ -143,34 +123,42 @@ export default function PlayerSeat({ player, isActive, phase, showCards, seatSty
           </div>
         )}
 
-        {/* Hand result at showdown */}
+        {/* Hand Result at Showdown */}
         {phase === 'showdown' && player.handResult && !isFolded && (
-          <div className="text-xs text-yellow-300 font-semibold mt-0.5 leading-tight">
+          <div className="mt-1 px-2 py-0.5 bg-yellow-900/60 rounded text-xs text-yellow-300 font-medium border border-yellow-700/50 leading-tight">
             {player.handResult.description}
           </div>
         )}
       </div>
 
-      {/* Hole cards */}
+      {/* Hole Cards */}
       {player.holeCards.length > 0 && !isSittingOut && (
         <div className="flex gap-1">
           {player.holeCards.map((card, i) => (
-            <CardDisplay
+            <PlayingCard
               key={i}
               card={card}
               hidden={isFolded || (!shouldShowCards && !isActive)}
+              size="sm"
             />
           ))}
         </div>
       )}
 
-      {/* Current bet chip */}
+      {/* Current Bet Chip */}
       {player.currentBet > 0 && (
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 rounded-full bg-yellow-500 border border-yellow-300 flex items-center justify-center">
-            <span className="text-black text-xs">$</span>
+        <div className="flex items-center gap-1.5 bg-black/60 rounded-full px-2 py-1 border border-yellow-600/50">
+          <div 
+            className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-black border"
+            style={{
+              background: 'linear-gradient(145deg, #FFD700 0%, #FFA500 100%)',
+              borderColor: '#B8860B',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+            }}
+          >
+            $
           </div>
-          <span className="text-yellow-300 text-xs font-bold">{player.currentBet}</span>
+          <span className="text-yellow-300 text-xs font-bold">{player.currentBet.toLocaleString()}</span>
         </div>
       )}
     </div>
