@@ -2,7 +2,7 @@
 
 ## Current State
 
-**Template Status**: ✅ Ready for development
+**Template Status**: ✅ Active development — Texas Hold'em poker game
 
 The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. It's ready for AI-assisted expansion to build any type of application.
 
@@ -14,6 +14,9 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] ESLint configuration
 - [x] Memory bank documentation
 - [x] Recipe system for common features
+- [x] Full Texas Hold'em poker game (2,213 lines)
+- [x] Monte Carlo win probability calculator (src/utils/monteCarlo.ts)
+- [x] Win % bar displayed on each active player's seat (color-coded green/yellow/red)
 
 ## Current Structure
 
@@ -23,6 +26,16 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 | `src/app/layout.tsx` | Root layout | ✅ Ready |
 | `src/app/globals.css` | Global styles | ✅ Ready |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
+| `src/gameEngine.ts` | Texas Hold'em game logic | ✅ Ready |
+| `src/handEvaluator.ts` | 7-card hand evaluation | ✅ Ready |
+| `src/types.ts` | Shared TypeScript types | ✅ Ready |
+| `src/utils/shuffle.ts` | Deck creation & shuffle | ✅ Ready |
+| `src/utils/monteCarlo.ts` | Monte Carlo win probability | ✅ Ready |
+| `src/components/PokerTable.tsx` | Main game table UI | ✅ Ready |
+| `src/components/PlayerSeat.tsx` | Player seat + win % bar | ✅ Ready |
+| `src/components/ActionPanel.tsx` | Bet/fold/raise controls | ✅ Ready |
+| `src/components/CommunityCards.tsx` | Board cards display | ✅ Ready |
+| `src/components/PotDisplay.tsx` | Pot amount display | ✅ Ready |
 
 ## Current Focus
 
@@ -86,3 +99,4 @@ export async function GET() {
 |------|---------|
 | Initial | Template created with base setup |
 | 2026-03-04 | Built complete Texas Hold'em poker game (2,213 lines) |
+| 2026-03-04 | Added Monte Carlo win probability (2000 simulations per phase change); shown as color-coded % bar on each player seat |
